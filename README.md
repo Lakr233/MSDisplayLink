@@ -26,9 +26,20 @@ Called MS but it has nothing to do with Microsoft. :P
 
 ### UIKit/AppKit
 
+Follow the steps to get called. The `DisplayLinkDelegate` is friendly to confirm for a UIView or NSView.
+
 - Hold reference to `DisplayLink` object.
 - Confirm to `DisplayLinkDelegate` protocol to get called within `synchronization()`.
 - Call `displayLink.delegatingObject` with a `DisplayLinkDelegate` object.
+
+Tech Tips:
+
+- Call to `synchronization()` is performed at a background thread.
+- Scheduler is a serial queue unique to each `DisplayLinkDriver` holds by `DisplayLink`.
+    - Queue inherits the quality of service from the where you created the `DisplayLink`.
+    - Does not make scene to use concurrent queue.
+    - Does not share the queue across different `DisplayLink` objects.
+    - Queue names are same.
 
 ### SwiftUI
 
