@@ -8,9 +8,11 @@
 import Combine
 import Foundation
 
-class DisplayLinkDriverBase: Identifiable {
+class DisplayLinkDriver: Identifiable {
     let id: UUID = .init()
     private let dispatchQueue = DispatchQueue(label: "wiki.qaq.vsync")
+
+    private static let sharedLink = DisplayLinkDriverHelper.shared
 
     typealias SynchornizationSubject = PassthroughSubject<
         Void,
@@ -31,5 +33,13 @@ class DisplayLinkDriverBase: Identifiable {
         synchronizationPublisher = subject
             .receive(on: dispatchQueue)
             .eraseToAnyPublisher()
+
+        DisplayLinkDriverHelper.shared.delegate(self)
     }
+
+    deinit {
+        DisplayLinkDriverHelper.shared.remove(self)
+    }
+
+    func synchronize() { synchronizationSubject.send() }
 }

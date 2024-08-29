@@ -1,67 +1,61 @@
-//
-//  DisplayLinkDriver+CA.swift
-//  MSDisplayLink
-//
-//  Created by 秋星桥 on 2024/8/13.
-//
-
 import Foundation
 
 #if canImport(UIKit)
     import UIKit
 
-    typealias DisplayLinkDriver = CADisplayLinkDriver
+    typealias DisplayLinkDriverHelper = CADisplayLinkDriverHelper
 
-    class CADisplayLinkDriver: DisplayLinkDriverBase {
+    class CADisplayLinkDriverHelper: DisplayLinkDriverHelperBase {
+        static let shared = CADisplayLinkDriverHelper()
+
         private var displayLink: CADisplayLink?
-        private var applicationRunningInForeground: Bool {
-            UIApplication.shared.applicationState == .active
-        }
 
-        override init() {
+        override private init() {
             super.init()
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(applicationDidEnterBackground(_:)),
+                name: UIApplication.didEnterBackgroundNotification,
+                object: nil
+            )
 
             NotificationCenter.default.addObserver(
                 self,
-                selector: #selector(applicationDidBecomeActive(_:)),
-                name: UIApplication.didBecomeActiveNotification,
+                selector: #selector(applicationWillEnterForeground(_:)),
+                name: UIApplication.willEnterForegroundNotification,
                 object: nil
             )
-
-            updateDisplayLink()
         }
 
         deinit {
+            NotificationCenter.default.removeObserver(self)
+        }
+
+        override func startDisplayLink() {
+            lock.lock()
+            defer { lock.unlock() }
+            guard displayLink == nil else { return }
+            displayLink = CADisplayLink(target: self, selector: #selector(displayLinkCallback))
+            displayLink?.add(to: .main, forMode: .common)
+        }
+
+        override func stopDisplayLink() {
+            lock.lock()
+            defer { lock.unlock() }
             displayLink?.invalidate()
-            self.displayLink = nil
-            NotificationCenter.default.removeObserver(
-                self,
-                name: UIApplication.didBecomeActiveNotification,
-                object: nil
-            )
+            displayLink = nil
         }
 
-        func updateDisplayLink() {
-            if applicationRunningInForeground {
-                guard displayLink == nil else { return }
-                let displayLink = CADisplayLink(target: self, selector: #selector(displayLinkCall(_:)))
-                displayLink.add(to: .main, forMode: .common)
-                self.displayLink = displayLink
-            } else {
-                guard let displayLink else { return }
-                displayLink.invalidate()
-                self.displayLink = nil
-            }
+        @objc private func displayLinkCallback() {
+            autoreleasepool { dispatchUpdate() }
         }
 
-        @objc
-        func applicationDidBecomeActive(_: Notification) {
-            updateDisplayLink()
+        @objc private func applicationDidEnterBackground(_: Notification) {
+            stopDisplayLink()
         }
 
-        @objc private func displayLinkCall(_: CADisplayLink) {
-            updateDisplayLink()
-            synchronizationSubject.send()
+        @objc private func applicationWillEnterForeground(_: Notification) {
+            startDisplayLink()
         }
     }
 #endif
