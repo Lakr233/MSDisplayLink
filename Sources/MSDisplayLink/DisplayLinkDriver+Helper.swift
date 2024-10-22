@@ -16,17 +16,18 @@ class DisplayLinkDriverHelperBase: Identifiable {
     struct WeakBox { weak var object: DisplayLinkDriver? }
 
     final func delegate(_ object: DisplayLinkDriver) {
+        var shouldStartDisplayLink = false
+        defer { if shouldStartDisplayLink { startDisplayLink() } }
+
         lock.lock()
+        defer { lock.unlock() }
 
         referenceHolder = referenceHolder
             .filter { $0.object != nil }
             .filter { $0.object?.id != object.id }
             + [.init(object: object)]
 
-        let shouldStartDisplayLink = !referenceHolder.isEmpty
-        lock.unlock()
-
-        if shouldStartDisplayLink { startDisplayLink() }
+        shouldStartDisplayLink = !referenceHolder.isEmpty
     }
 
     final func remove(_ object: DisplayLinkDriver) {
@@ -37,21 +38,25 @@ class DisplayLinkDriverHelperBase: Identifiable {
     }
 
     final func reclaimComputeResourceIfPossible() {
-        lock.lock()
-        referenceHolder = referenceHolder.filter { $0.object != nil }
-        let shouldStop = referenceHolder.isEmpty
-        lock.unlock()
+        var shouldStop = false
+        defer { if shouldStop { stopDisplayLink() } }
 
-        if shouldStop { stopDisplayLink() }
+        lock.lock()
+        defer { lock.unlock() }
+
+        referenceHolder = referenceHolder.filter { $0.object != nil }
+        shouldStop = referenceHolder.isEmpty
     }
 
     final func dispatchUpdate() {
+        defer { reclaimComputeResourceIfPossible() }
+
         lock.lock()
+        defer { lock.unlock() }
+
         for box in referenceHolder {
             box.object?.synchronize()
         }
-        lock.unlock()
-        reclaimComputeResourceIfPossible()
     }
 
     func startDisplayLink() {

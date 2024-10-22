@@ -34,6 +34,7 @@ import Foundation
         override func startDisplayLink() {
             lock.lock()
             defer { lock.unlock() }
+
             guard displayLink == nil else { return }
             displayLink = CADisplayLink(target: self, selector: #selector(displayLinkCallback))
             displayLink?.add(to: .main, forMode: .common)
@@ -42,6 +43,7 @@ import Foundation
         override func stopDisplayLink() {
             lock.lock()
             defer { lock.unlock() }
+
             displayLink?.invalidate()
             displayLink = nil
         }

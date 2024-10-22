@@ -13,6 +13,7 @@ import Foundation
         override func startDisplayLink() {
             lock.lock()
             defer { lock.unlock() }
+
             guard displayLink == nil else { return }
             CVDisplayLinkCreateWithActiveCGDisplays(&displayLink)
             guard let displayLink else { return }
@@ -26,6 +27,7 @@ import Foundation
         override func stopDisplayLink() {
             lock.lock()
             defer { lock.unlock() }
+
             if let displayLink { CVDisplayLinkStop(displayLink) }
             displayLink = nil
         }
