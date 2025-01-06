@@ -5,10 +5,10 @@ import PackageDescription
 let package = Package(
     name: "MSDisplayLink",
     platforms: [
-        .iOS(.v14),
+        .iOS(.v13),
         .macOS(.v11),
-        .macCatalyst(.v14),
-        .tvOS(.v14),
+        .macCatalyst(.v13),
+        .tvOS(.v13),
         .visionOS(.v1),
     ],
     products: [
