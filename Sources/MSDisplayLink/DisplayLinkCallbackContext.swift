@@ -9,9 +9,15 @@ import Foundation
 
 public struct DisplayLinkCallbackContext {
     /// The time interval between screen refresh updates.
-    let duration: TimeInterval
+    public let duration: TimeInterval
     /// The time interval that represents when the last frame displayed.
-    let timestamp: TimeInterval
+    public let timestamp: TimeInterval
     /// The time interval that represents when the next frame displays.
-    let targetTimestamp: TimeInterval
+    public let targetTimestamp: TimeInterval
+
+    public init(duration: TimeInterval, timestamp: TimeInterval, targetTimestamp: TimeInterval) {
+        self.duration = duration
+        self.timestamp = timestamp
+        self.targetTimestamp = targetTimestamp
+    }
 }
