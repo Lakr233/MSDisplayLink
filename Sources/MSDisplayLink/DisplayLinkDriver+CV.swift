@@ -17,8 +17,17 @@ import Foundation
             guard displayLink == nil else { return }
             CVDisplayLinkCreateWithActiveCGDisplays(&displayLink)
             guard let displayLink else { return }
-            CVDisplayLinkSetOutputCallback(displayLink, { _, _, _, _, _, _ -> CVReturn in
-                autoreleasepool { CVDisplayLinkDriverHelper.shared.dispatchUpdate() }
+
+            CVDisplayLinkSetOutputCallback(displayLink, { _, inNow, inOutputTime, _, _, _ in
+                autoreleasepool {
+                    let clockFrequency = CVGetHostClockFrequency()
+                    let context = DisplayLinkCallbackContext(
+                        duration: TimeInterval(inNow.pointee.videoRefreshPeriod) / TimeInterval(inNow.pointee.videoTimeScale),
+                        timestamp: TimeInterval(inNow.pointee.hostTime) / clockFrequency,
+                        targetTimestamp: TimeInterval(inOutputTime.pointee.hostTime) / clockFrequency
+                    )
+                    CVDisplayLinkDriverHelper.shared.dispatchUpdate(context: context)
+                }
                 return kCVReturnSuccess
             }, nil)
             CVDisplayLinkStart(displayLink)

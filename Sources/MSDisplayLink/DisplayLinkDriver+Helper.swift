@@ -48,14 +48,14 @@ class DisplayLinkDriverHelperBase: Identifiable {
         shouldStop = referenceHolder.isEmpty
     }
 
-    final func dispatchUpdate() {
+    final func dispatchUpdate(context: DisplayLinkCallbackContext) {
         defer { reclaimComputeResourceIfPossible() }
 
         lock.lock()
         defer { lock.unlock() }
 
         for box in referenceHolder {
-            box.object?.synchronize()
+            box.object?.synchronize(context: context)
         }
     }
 

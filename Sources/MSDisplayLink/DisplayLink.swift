@@ -9,7 +9,7 @@ import Combine
 import Foundation
 
 public protocol DisplayLinkDelegate: AnyObject {
-    func synchronization()
+    func synchronization(context: DisplayLinkCallbackContext)
 }
 
 public class DisplayLink {
@@ -21,7 +21,7 @@ public class DisplayLink {
     public init() {
         let driver = DisplayLinkDriver()
         driver.synchronizationPublisher
-            .sink { [weak self] _ in self?.delegatingObject?.synchronization() }
+            .sink { [weak self] output in self?.delegatingObject?.synchronization(context: output) }
             .store(in: &driverSubscription)
         self.driver = driver
     }
