@@ -17,8 +17,8 @@ public struct DisplayLinkModifier: ViewModifier {
         link.delegatingObject(context)
     }
 
-    public init(scheduleToMainThread _: Bool = true, _ callback: @escaping () -> Void) {
-        self.init(scheduleToMainThread: true) { _ in callback() }
+    public init(scheduleToMainThread: Bool = true, _ callback: @escaping () -> Void) {
+        self.init(scheduleToMainThread: scheduleToMainThread) { _ in callback() }
     }
 
     public func body(content: Content) -> some View {
@@ -39,9 +39,17 @@ class DisplayLinkModifierContext: ObservableObject, DisplayLinkDelegate {
 
     func synchronization(context: DisplayLinkCallbackContext) {
         if scheduleToMainThread {
-            DispatchQueue.main.async { self.callback(context) }
+            if Thread.isMainThread {
+                callback(context)
+            } else {
+                DispatchQueue.main.async { self.callback(context) }
+            }
         } else {
-            callback(context)
+            if Thread.isMainThread {
+                DispatchQueue.global().async { self.callback(context) }
+            } else {
+                callback(context)
+            }
         }
     }
 }
