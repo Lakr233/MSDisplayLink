@@ -11,7 +11,6 @@ class DisplayLinkDriverHelperBase: Identifiable {
     final let id: UUID = .init()
 
     private(set) var referenceHolder: [WeakBox] = []
-    final let lock = NSLock()
 
     struct WeakBox { weak var object: DisplayLinkDriver? }
 
