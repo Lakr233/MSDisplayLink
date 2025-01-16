@@ -32,18 +32,14 @@ import Foundation
         }
 
         override func startDisplayLink() {
-            lock.lock()
-            defer { lock.unlock() }
-
+            assert(Thread.isMainThread)
             guard displayLink == nil else { return }
             displayLink = CADisplayLink(target: self, selector: #selector(displayLinkCallback(_:)))
             displayLink?.add(to: .main, forMode: .common)
         }
 
         override func stopDisplayLink() {
-            lock.lock()
-            defer { lock.unlock() }
-
+            assert(Thread.isMainThread)
             displayLink?.invalidate()
             displayLink = nil
         }

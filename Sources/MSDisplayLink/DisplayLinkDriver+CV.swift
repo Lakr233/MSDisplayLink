@@ -11,9 +11,7 @@ import Foundation
         private var displayLink: CVDisplayLink?
 
         override func startDisplayLink() {
-            lock.lock()
-            defer { lock.unlock() }
-
+            assert(Thread.isMainThread)
             guard displayLink == nil else { return }
             CVDisplayLinkCreateWithActiveCGDisplays(&displayLink)
             guard let displayLink else { return }
@@ -26,7 +24,13 @@ import Foundation
                         timestamp: TimeInterval(inNow.pointee.hostTime) / clockFrequency,
                         targetTimestamp: TimeInterval(inOutputTime.pointee.hostTime) / clockFrequency
                     )
-                    CVDisplayLinkDriverHelper.shared.dispatchUpdate(context: context)
+                    if Thread.isMainThread {
+                        CVDisplayLinkDriverHelper.shared.dispatchUpdate(context: context)
+                    } else {
+                        DispatchQueue.main.asyncAndWait {
+                            CVDisplayLinkDriverHelper.shared.dispatchUpdate(context: context)
+                        }
+                    }
                 }
                 return kCVReturnSuccess
             }, nil)
@@ -34,9 +38,7 @@ import Foundation
         }
 
         override func stopDisplayLink() {
-            lock.lock()
-            defer { lock.unlock() }
-
+            assert(Thread.isMainThread)
             if let displayLink { CVDisplayLinkStop(displayLink) }
             displayLink = nil
         }
