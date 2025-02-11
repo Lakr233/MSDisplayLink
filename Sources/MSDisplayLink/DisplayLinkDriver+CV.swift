@@ -27,7 +27,11 @@ import Foundation
                     if Thread.isMainThread {
                         CVDisplayLinkDriverHelper.shared.dispatchUpdate(context: context)
                     } else {
-                        DispatchQueue.main.asyncAndWait {
+                        DispatchQueue.main.async {
+                            // **you can not wait here**
+                            // CVDisplayLinkSetOutputCallback is holding pthread lock
+                            // performing operations inside dispatchUpdate may operate on CVDisplayLinkStop
+                            // causing deadlock
                             CVDisplayLinkDriverHelper.shared.dispatchUpdate(context: context)
                         }
                     }
