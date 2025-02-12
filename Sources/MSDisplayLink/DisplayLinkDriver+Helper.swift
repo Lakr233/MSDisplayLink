@@ -36,26 +36,16 @@ class DisplayLinkDriverHelperBase: Identifiable {
     final func reclaimComputeResourceIfPossible() {
         assert(Thread.isMainThread)
         var shouldStop = false
-        defer { if shouldStop { stopDisplayLink() } }
+        defer { if shouldStop { self.stopDisplayLink() } }
         referenceHolder = referenceHolder.filter { $0.object != nil }
         shouldStop = referenceHolder.isEmpty
     }
 
     final func dispatchUpdate(context: DisplayLinkCallbackContext) {
-        defer {
-            DispatchQueue.main.async {
-                self.reclaimComputeResourceIfPossible()
-            }
-        }
+        defer { self.reclaimComputeResourceIfPossible() }
 
         for box in referenceHolder {
-            if Thread.isMainThread {
-                box.object?.synchronize(context: context)
-            } else {
-                DispatchQueue.main.asyncAndWait {
-                    box.object?.synchronize(context: context)
-                }
-            }
+            box.object?.synchronize(context: context)
         }
     }
 
