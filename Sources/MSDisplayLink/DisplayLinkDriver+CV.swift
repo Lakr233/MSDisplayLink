@@ -24,17 +24,7 @@ import Foundation
                         timestamp: TimeInterval(inNow.pointee.hostTime) / clockFrequency,
                         targetTimestamp: TimeInterval(inOutputTime.pointee.hostTime) / clockFrequency
                     )
-                    if Thread.isMainThread {
-                        CVDisplayLinkDriverHelper.shared.dispatchUpdate(context: context)
-                    } else {
-                        DispatchQueue.main.async {
-                            // **you can not wait here**
-                            // CVDisplayLinkSetOutputCallback is holding pthread lock
-                            // performing operations inside dispatchUpdate may operate on CVDisplayLinkStop
-                            // causing deadlock
-                            CVDisplayLinkDriverHelper.shared.dispatchUpdate(context: context)
-                        }
-                    }
+                    CVDisplayLinkDriverHelper.shared.dispatchUpdate(context: context)
                 }
                 return kCVReturnSuccess
             }, nil)
