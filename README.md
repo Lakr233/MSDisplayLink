@@ -15,7 +15,7 @@ Called MS but it has nothing to do with Microsoft. :P
 ### Swift Package Manager
 
 ```swift
-.package(url: "https://github.com/Lakr233/MSDisplayLink.git", from: "1.0.0")
+.package(url: "https://github.com/Lakr233/MSDisplayLink.git", from: "2.0.8")
 ```
 
 ### CocoaPods
