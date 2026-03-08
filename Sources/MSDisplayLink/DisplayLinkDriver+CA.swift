@@ -6,7 +6,7 @@ import Foundation
     typealias DisplayLinkDriverHelper = CADisplayLinkDriverHelper
 
     class CADisplayLinkDriverHelper: DisplayLinkDriverHelperBase {
-        static let shared = CADisplayLinkDriverHelper()
+        nonisolated(unsafe) static let shared = CADisplayLinkDriverHelper()
 
         private var displayLink: CADisplayLink?
 

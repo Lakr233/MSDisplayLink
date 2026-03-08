@@ -7,17 +7,18 @@
 
 import SwiftUI
 
+@MainActor
 public struct DisplayLinkModifier: ViewModifier {
     let link: DisplayLink
     let context: DisplayLinkModifierContext
 
-    public init(scheduleToMainThread: Bool = true, _ callback: @escaping (DisplayLinkCallbackContext) -> Void) {
+    public init(scheduleToMainThread: Bool = true, _ callback: @escaping @Sendable (DisplayLinkCallbackContext) -> Void) {
         link = .init()
         context = .init(scheduleToMainThread: scheduleToMainThread, callback: callback)
         link.delegatingObject(context)
     }
 
-    public init(scheduleToMainThread: Bool = true, _ callback: @escaping () -> Void) {
+    public init(scheduleToMainThread: Bool = true, _ callback: @escaping @Sendable () -> Void) {
         self.init(scheduleToMainThread: scheduleToMainThread) { _ in callback() }
     }
 
@@ -28,11 +29,11 @@ public struct DisplayLinkModifier: ViewModifier {
     }
 }
 
-class DisplayLinkModifierContext: ObservableObject, DisplayLinkDelegate {
+class DisplayLinkModifierContext: ObservableObject, DisplayLinkDelegate, @unchecked Sendable {
     let scheduleToMainThread: Bool
-    var callback: (DisplayLinkCallbackContext) -> Void
+    var callback: @Sendable (DisplayLinkCallbackContext) -> Void
 
-    init(scheduleToMainThread: Bool, callback: @escaping (DisplayLinkCallbackContext) -> Void) {
+    init(scheduleToMainThread: Bool, callback: @escaping @Sendable (DisplayLinkCallbackContext) -> Void) {
         self.scheduleToMainThread = scheduleToMainThread
         self.callback = callback
     }

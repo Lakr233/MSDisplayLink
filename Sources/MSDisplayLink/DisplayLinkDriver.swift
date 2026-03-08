@@ -5,13 +5,11 @@
 //  Created by 秋星桥 on 2024/8/13.
 //
 
-import Combine
+@preconcurrency import Combine
 import Foundation
 
 class DisplayLinkDriver: Identifiable {
     let id: UUID = .init()
-
-    private static let sharedLink = DisplayLinkDriverHelper.shared
 
     typealias SynchornizationPublisher = PassthroughSubject<
         DisplayLinkCallbackContext,

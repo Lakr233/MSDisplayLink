@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct DisplayLinkCallbackContext {
+public struct DisplayLinkCallbackContext: Sendable {
     /// The time interval between screen refresh updates.
     public let duration: TimeInterval
     /// The time interval that represents when the last frame displayed.

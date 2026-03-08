@@ -5,14 +5,14 @@
 //  Created by 秋星桥 on 2024/8/13.
 //
 
-import Combine
+@preconcurrency import Combine
 import Foundation
 
 public protocol DisplayLinkDelegate: AnyObject {
     func synchronization(context: DisplayLinkCallbackContext)
 }
 
-public class DisplayLink {
+public class DisplayLink: @unchecked Sendable {
     private weak var delegatingObject: DisplayLinkDelegate?
 
     private var driver: DisplayLinkDriver?
