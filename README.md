@@ -35,6 +35,14 @@ Follow the steps to get called. The `DisplayLinkDelegate` is friendly to confirm
 Tech Tips:
 
 - Call to `synchronization()` is performed at a background thread.
+- The link asks the display for full ProMotion by default (60–120 fps,
+  preferred 120). Tune it per instance with
+  `DisplayLink(preferredFrameRateRange:)` or the `preferredFrameRateRange`
+  property — all live instances share one platform link, and the applied
+  range is the union of every instance's request. On iPhone the host app
+  must also set `CADisableMinimumFrameDurationOnPhone` in its Info.plist,
+  or the system clamps everything to 60. The CVDisplayLink path (AppKit)
+  always runs at the display's own rate and ignores the request.
 - Scheduler is a serial queue unique to each `DisplayLinkDriver` holds by `DisplayLink`.
     - Queue inherits the quality of service from the where you created the `DisplayLink`.
     - Does not make scene to use concurrent queue.

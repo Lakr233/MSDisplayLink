@@ -17,6 +17,15 @@ class DisplayLinkDriver: Identifiable {
     >
     let synchronizationPublisher: SynchornizationPublisher
 
+    /// This driver's vote on the shared link's rate — see
+    /// ``DisplayLink/preferredFrameRateRange``.
+    var preferredFrameRateRange: DisplayLinkFrameRateRange = .default {
+        didSet {
+            guard preferredFrameRateRange != oldValue else { return }
+            DisplayLinkDriverHelper.shared.frameRatePreferencesDidChange()
+        }
+    }
+
     init() {
         synchronizationPublisher = .init()
         DisplayLinkDriverHelper.shared.delegate(self)

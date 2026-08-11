@@ -35,6 +35,7 @@ import Foundation
             assert(Thread.isMainThread)
             guard displayLink == nil else { return }
             displayLink = CADisplayLink(target: self, selector: #selector(displayLinkCallback(_:)))
+            applyFrameRateRange()
             displayLink?.add(to: .main, forMode: .common)
         }
 
@@ -42,6 +43,28 @@ import Foundation
             assert(Thread.isMainThread)
             displayLink?.invalidate()
             displayLink = nil
+        }
+
+        override func frameRatePreferencesDidChange() {
+            applyFrameRateRange()
+        }
+
+        /// Without this a CADisplayLink runs at the system's 60 fps default
+        /// on ProMotion displays, whatever the display can do — mixing a
+        /// 60 Hz animation into 120 Hz native scrolling. (On iPhone the
+        /// host app must also set `CADisableMinimumFrameDurationOnPhone`.)
+        private func applyFrameRateRange() {
+            guard let displayLink else { return }
+            let range = resolvedFrameRateRange()
+            if #available(iOS 15.0, tvOS 15.0, macCatalyst 15.0, *) {
+                displayLink.preferredFrameRateRange = CAFrameRateRange(
+                    minimum: range.minimum,
+                    maximum: range.maximum,
+                    preferred: range.preferred
+                )
+            } else {
+                displayLink.preferredFramesPerSecond = Int(range.preferred.rounded())
+            }
         }
 
         @objc private func displayLinkCallback(_ displayLink: CADisplayLink) {

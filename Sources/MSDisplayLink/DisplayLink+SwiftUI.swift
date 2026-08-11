@@ -12,14 +12,25 @@ public struct DisplayLinkModifier: ViewModifier {
     let link: DisplayLink
     let context: DisplayLinkModifierContext
 
-    public init(scheduleToMainThread: Bool = true, _ callback: @escaping @Sendable (DisplayLinkCallbackContext) -> Void) {
-        link = .init()
+    public init(
+        scheduleToMainThread: Bool = true,
+        preferredFrameRateRange: DisplayLinkFrameRateRange = .default,
+        _ callback: @escaping @Sendable (DisplayLinkCallbackContext) -> Void
+    ) {
+        link = .init(preferredFrameRateRange: preferredFrameRateRange)
         context = .init(scheduleToMainThread: scheduleToMainThread, callback: callback)
         link.delegatingObject(context)
     }
 
-    public init(scheduleToMainThread: Bool = true, _ callback: @escaping @Sendable () -> Void) {
-        self.init(scheduleToMainThread: scheduleToMainThread) { _ in callback() }
+    public init(
+        scheduleToMainThread: Bool = true,
+        preferredFrameRateRange: DisplayLinkFrameRateRange = .default,
+        _ callback: @escaping @Sendable () -> Void
+    ) {
+        self.init(
+            scheduleToMainThread: scheduleToMainThread,
+            preferredFrameRateRange: preferredFrameRateRange
+        ) { _ in callback() }
     }
 
     public func body(content: Content) -> some View {

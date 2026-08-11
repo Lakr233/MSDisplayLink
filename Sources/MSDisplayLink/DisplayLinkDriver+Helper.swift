@@ -17,7 +17,10 @@ class DisplayLinkDriverHelperBase: Identifiable {
     final func delegate(_ object: DisplayLinkDriver) {
         assert(Thread.isMainThread)
         var shouldStartDisplayLink = false
-        defer { if shouldStartDisplayLink { startDisplayLink() } }
+        defer {
+            if shouldStartDisplayLink { startDisplayLink() }
+            frameRatePreferencesDidChange()
+        }
 
         referenceHolder = referenceHolder
             .filter { $0.object != nil }
@@ -31,6 +34,7 @@ class DisplayLinkDriverHelperBase: Identifiable {
         assert(Thread.isMainThread)
 
         referenceHolder = referenceHolder.filter { $0.object?.id != object.id }
+        frameRatePreferencesDidChange()
     }
 
     final func reclaimComputeResourceIfPossible() {
@@ -48,6 +52,22 @@ class DisplayLinkDriverHelperBase: Identifiable {
             box.object?.synchronize(context: context)
         }
     }
+
+    /// The union of every live driver's request — what the platform link
+    /// should actually run at. Falls back to the library default when no
+    /// driver is alive (the link is about to stop anyway).
+    final func resolvedFrameRateRange() -> DisplayLinkFrameRateRange {
+        var drivers = referenceHolder.compactMap(\.object)
+        guard let first = drivers.popLast() else { return .default }
+        return drivers.reduce(first.preferredFrameRateRange) {
+            $0.union($1.preferredFrameRateRange)
+        }
+    }
+
+    /// Called whenever a driver joins, leaves, or changes its request.
+    /// Platform helpers that can steer their link's rate re-apply it here;
+    /// the base does nothing (CVDisplayLink runs at the display's rate).
+    func frameRatePreferencesDidChange() {}
 
     func startDisplayLink() {
         fatalError("Subclasses need to implement the `startDisplayLink()` method.")
