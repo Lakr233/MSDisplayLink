@@ -15,7 +15,7 @@ Called MS but it has nothing to do with Microsoft. :P
 ### Swift Package Manager
 
 ```swift
-.package(url: "https://github.com/Lakr233/MSDisplayLink.git", from: "2.0.8")
+.package(url: "https://github.com/Lakr233/MSDisplayLink.git", from: "2.2.0")
 ```
 
 ### CocoaPods
@@ -34,7 +34,8 @@ Follow the steps to get called. The `DisplayLinkDelegate` is friendly to confirm
 
 Tech Tips:
 
-- Call to `synchronization()` is performed at a background thread.
+- Call to `synchronization()` is performed on the main thread, on every platform.
+- `DisplayLink` can be created and released on any thread; registration with the shared platform link always happens on the main thread.
 - The link asks the display for full ProMotion by default (60–120 fps,
   preferred 120). Tune it per instance with
   `DisplayLink(preferredFrameRateRange:)` or the `preferredFrameRateRange`
@@ -43,11 +44,7 @@ Tech Tips:
   must also set `CADisableMinimumFrameDurationOnPhone` in its Info.plist,
   or the system clamps everything to 60. The CVDisplayLink path (AppKit)
   always runs at the display's own rate and ignores the request.
-- Scheduler is a serial queue unique to each `DisplayLinkDriver` holds by `DisplayLink`.
-    - Queue inherits the quality of service from the where you created the `DisplayLink`.
-    - Does not make scene to use concurrent queue.
-    - Does not share the queue across different `DisplayLink` objects.
-    - Queue names are same.
+- Each request is reshaped into a range Core Animation accepts before it is combined or applied: `maximum` is the cap (a lower `maximum` pulls `minimum` down with it), a missing or non-positive `minimum` becomes 1, `preferred` is clamped into the range, and `preferred: 0` keeps meaning "no preference".
 
 ### SwiftUI
 

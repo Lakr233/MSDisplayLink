@@ -8,7 +8,10 @@
 @preconcurrency import Combine
 import Foundation
 
-class DisplayLinkDriver: Identifiable {
+/// Its owning `DisplayLink` is `Sendable`, so a driver can be created and
+/// released on any thread. The shared helper is main-thread only; every call
+/// into it hops there first.
+class DisplayLinkDriver: Identifiable, @unchecked Sendable {
     let id: UUID = .init()
 
     typealias SynchornizationPublisher = PassthroughSubject<
@@ -22,17 +25,29 @@ class DisplayLinkDriver: Identifiable {
     var preferredFrameRateRange: DisplayLinkFrameRateRange = .default {
         didSet {
             guard preferredFrameRateRange != oldValue else { return }
-            DisplayLinkDriverHelper.shared.frameRatePreferencesDidChange()
+            Self.onMainThread { DisplayLinkDriverHelper.shared.frameRatePreferencesDidChange() }
         }
     }
 
     init() {
         synchronizationPublisher = .init()
-        DisplayLinkDriverHelper.shared.delegate(self)
+        Self.onMainThread { [weak self] in
+            guard let self else { return }
+            DisplayLinkDriverHelper.shared.delegate(self)
+        }
     }
 
     deinit {
-        DisplayLinkDriverHelper.shared.remove(self)
+        let id = id
+        Self.onMainThread { DisplayLinkDriverHelper.shared.remove(id: id) }
+    }
+
+    private static func onMainThread(_ work: @escaping @Sendable () -> Void) {
+        if Thread.isMainThread {
+            work()
+        } else {
+            DispatchQueue.main.async(execute: work)
+        }
     }
 
     func synchronize(context: DisplayLinkCallbackContext) {

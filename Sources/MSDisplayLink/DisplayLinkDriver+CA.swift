@@ -81,6 +81,7 @@ import Foundation
         }
 
         @objc private func applicationWillEnterForeground(_: Notification) {
+            guard hasLiveDrivers else { return }
             startDisplayLink()
         }
     }
