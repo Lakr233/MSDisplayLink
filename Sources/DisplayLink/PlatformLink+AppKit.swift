@@ -28,7 +28,9 @@
 
         @MainActor
         static var primary: Display {
-            if let cachedPrimary { return cachedPrimary }
+            if let cachedPrimary {
+                return cachedPrimary
+            }
             let primary = Display(id: CGMainDisplayID())
             cachedPrimary = primary
             return primary
@@ -36,7 +38,9 @@
 
         @MainActor
         var isConnected: Bool {
-            if let cachedConnected = Self.cachedConnected { return cachedConnected.contains(self) }
+            if let cachedConnected = Self.cachedConnected {
+                return cachedConnected.contains(self)
+            }
             let connected = Set(NSScreen.screens.map(Display.init))
             Self.cachedConnected = connected
             return connected.contains(self)
@@ -52,7 +56,9 @@
         @MainActor
         static func showing(_ view: NSView) -> Display? {
             guard let screen = view.window?.screen else { return nil }
-            if let display = cachedScreens[ObjectIdentifier(screen)] { return display }
+            if let display = cachedScreens[ObjectIdentifier(screen)] {
+                return display
+            }
             let display = Display(screen)
             cachedScreens[ObjectIdentifier(screen)] = display
             return display
@@ -79,7 +85,7 @@
             CVDisplayLinkSetOutputHandler(link) { _, now, output, _, _ in
                 delivery.enqueue(DisplayLinkFrame(
                     timestamp: Self.seconds(fromHostTime: now.pointee.hostTime),
-                    targetTimestamp: Self.seconds(fromHostTime: output.pointee.hostTime)
+                    targetTimestamp: Self.seconds(fromHostTime: output.pointee.hostTime),
                 ))
                 return kCVReturnSuccess
             }

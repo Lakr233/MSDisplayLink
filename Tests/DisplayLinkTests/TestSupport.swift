@@ -19,10 +19,14 @@ final class FrameRecorder: DisplayLinkDelegate {
     /// Runs after the frame is recorded.
     var onFrame: ((DisplayLink, DisplayLinkFrame) -> Void)?
 
-    var count: Int { frames.count }
+    var count: Int {
+        frames.count
+    }
 
     func displayLink(_ displayLink: DisplayLink, didUpdate frame: DisplayLinkFrame) {
-        if !Thread.isMainThread { calledOffMainThread = true }
+        if !Thread.isMainThread {
+            calledOffMainThread = true
+        }
         frames.append(frame)
         onFrame?(displayLink, frame)
     }
@@ -51,7 +55,9 @@ class DisplayLinkTestCase: XCTestCase {
     func spinMainRunLoop(timeout: TimeInterval = 5, until condition: () -> Bool) -> Bool {
         let deadline = Date().addingTimeInterval(timeout)
         while !condition() {
-            if Date() > deadline { return false }
+            if Date() > deadline {
+                return false
+            }
             RunLoop.main.run(until: Date().addingTimeInterval(0.005))
         }
         return true
@@ -95,7 +101,9 @@ final class TestWindow {
             window.isHidden = false
         }
 
-        var contentView: UIView { window }
+        var contentView: UIView {
+            window
+        }
 
         func close() {
             window.isHidden = true
@@ -111,7 +119,9 @@ final class TestWindow {
             window.orderFront(nil)
         }
 
-        var contentView: NSView { window.contentView! }
+        var contentView: NSView {
+            window.contentView!
+        }
 
         func close() {
             contentView.subviews.forEach { $0.removeFromSuperview() }

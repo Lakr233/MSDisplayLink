@@ -46,7 +46,9 @@ public struct DisplayLinkFrameRateRange: Sendable, Hashable {
     /// preferred of 120. The maximum wins over the minimum: it is the cap the
     /// caller asked for.
     var normalized: DisplayLinkFrameRateRange {
-        if minimum == 0, maximum == 0, preferred == 0 { return self }
+        if minimum == 0, maximum == 0, preferred == 0 {
+            return self
+        }
         let maximum = maximum.isFinite && maximum > 0 ? maximum : Self.default.maximum
         let minimum = minimum.isFinite && minimum > 0 ? Swift.min(minimum, maximum) : Swift.min(1, maximum)
         let preferred = preferred.isFinite && preferred != 0

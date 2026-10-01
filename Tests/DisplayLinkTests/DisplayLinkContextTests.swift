@@ -87,8 +87,8 @@ final class DisplayLinkContextTests: DisplayLinkTestCase {
         defer { window.close() }
         let recorder = FrameRecorder()
         var view: PlatformView? = PlatformView()
-        window.contentView.addSubview(view!)
-        let link = DisplayLink(context: .view(view!))
+        try window.contentView.addSubview(XCTUnwrap(view))
+        let link = try DisplayLink(context: .view(XCTUnwrap(view)))
         link.delegate = recorder
         waitForFrames(on: recorder)
 
@@ -98,7 +98,7 @@ final class DisplayLinkContextTests: DisplayLinkTestCase {
         assertNoFrames(on: recorder)
     }
 
-    func testReleasingTheLinkRemovesItsAnchor() throws {
+    func testReleasingTheLinkRemovesItsAnchor() {
         let view = PlatformView()
         var link: DisplayLink? = DisplayLink(context: .view(view))
         XCTAssertEqual(view.subviews.count, 1)

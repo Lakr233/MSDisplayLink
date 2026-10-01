@@ -29,7 +29,9 @@ public struct DisplayLinkContext {
     private let source: Source
 
     /// The primary display.
-    public static var main: DisplayLinkContext { .init(source: .main) }
+    public static var main: DisplayLinkContext {
+        .init(source: .main)
+    }
 
     #if canImport(UIKit)
         /// The display showing `view`, held weakly.
