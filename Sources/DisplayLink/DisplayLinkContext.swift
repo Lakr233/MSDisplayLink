@@ -35,6 +35,10 @@ public struct DisplayLinkContext {
 
     #if canImport(UIKit)
         /// The display showing `view`, held weakly.
+        ///
+        /// Adds one hidden subview to `view` to hear about window changes.
+        /// Removing it stops the link from following the view until
+        /// `context` is set again.
         public static func view(_ view: UIView) -> DisplayLinkContext {
             .init(source: .view(WeakView(view: view)))
         }
@@ -47,6 +51,10 @@ public struct DisplayLinkContext {
         #endif
     #elseif canImport(AppKit)
         /// The display showing `view`, held weakly.
+        ///
+        /// Adds one hidden subview to `view` to hear about window changes.
+        /// Removing it stops the link from following the view until
+        /// `context` is set again.
         public static func view(_ view: NSView) -> DisplayLinkContext {
             .init(source: .view(WeakView(view: view)))
         }

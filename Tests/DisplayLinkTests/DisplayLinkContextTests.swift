@@ -34,6 +34,20 @@ final class DisplayLinkContextTests: DisplayLinkTestCase {
         assertNoFrames(on: recorder)
     }
 
+    func testAnchorCoversTheViewAndResizesWithIt() throws {
+        let view = PlatformView(frame: CGRect(x: 0, y: 0, width: 120, height: 80))
+        let link = DisplayLink(context: .view(view))
+        let anchor = try XCTUnwrap(view.subviews.first as? WindowAnchor)
+        XCTAssertEqual(anchor.frame, view.bounds)
+
+        view.frame.size = CGSize(width: 300, height: 200)
+        #if canImport(UIKit)
+            view.layoutIfNeeded()
+        #endif
+        XCTAssertEqual(anchor.frame, view.bounds)
+        withExtendedLifetime(link) {}
+    }
+
     func testViewMovedBetweenWindowsKeepsTicking() throws {
         let first = try makeWindow()
         let second = try makeWindow()

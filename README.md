@@ -58,7 +58,9 @@ final class CanvasView: UIView, DisplayLinkDelegate {
 
 `context` can be changed at any time, so an object that gets its view later can start on `.main` and rebind.
 
-A `.view` link adds one hidden, zero-size subview to the view so it hears about the view entering and leaving windows. It takes no input and is invisible to accessibility.
+A `.view` link adds one hidden subview to the view so it hears about the view entering and leaving windows. It covers the view's bounds and resizes with it, takes no input and is invisible to accessibility.
+
+The view's `subviews` therefore holds one extra element while the link is bound to it. Code that counts or indexes `subviews` sees it, and code that removes every subview removes it too: the link then misses later window changes until its `context` is set again.
 
 ### Async sequence
 
