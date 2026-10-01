@@ -20,6 +20,17 @@ Formerly MSDisplayLink. 2.x stays available at the old URL; see [Migrating from 
 
 Supports iOS 15, macOS 12, Mac Catalyst 15, tvOS 15 and visionOS 1, the oldest systems current toolchains deploy to. Requires Swift 6.2 (Xcode 26) or later.
 
+### 120 Hz on iPhone
+
+A ProMotion iPhone holds every app to 60 frames a second until the app opts out in its own Info.plist. A package cannot set this for its host, so the app has to:
+
+```xml
+<key>CADisableMinimumFrameDurationOnPhone</key>
+<true/>
+```
+
+That is the whole opt-out, and the key has no other spelling: a look-alike such as `CADisableMinimumFrameDurationClamp` is silently ignored, and the app stays at 60. iPad needs no key. See Apple's [CADisableMinimumFrameDurationOnPhone](https://developer.apple.com/documentation/bundleresources/information-property-list/cadisableminimumframedurationonphone).
+
 ## Usage
 
 ### UIKit / AppKit
