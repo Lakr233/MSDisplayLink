@@ -74,6 +74,11 @@ class DisplayLinkDriverHelperBase: Identifiable {
     /// the base does nothing (CVDisplayLink runs at the display's rate).
     func frameRatePreferencesDidChange() {}
 
+    /// Whether the platform link currently exists and ticks.
+    var isDisplayLinkRunning: Bool {
+        fatalError("Subclasses need to implement `isDisplayLinkRunning`.")
+    }
+
     func startDisplayLink() {
         fatalError("Subclasses need to implement the `startDisplayLink()` method.")
     }

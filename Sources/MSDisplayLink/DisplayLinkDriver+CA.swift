@@ -10,6 +10,8 @@ import Foundation
 
         private var displayLink: CADisplayLink?
 
+        override var isDisplayLinkRunning: Bool { displayLink != nil }
+
         override private init() {
             super.init()
             NotificationCenter.default.addObserver(
