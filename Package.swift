@@ -16,5 +16,6 @@ let package = Package(
     ],
     targets: [
         .target(name: "MSDisplayLink"),
+        .testTarget(name: "MSDisplayLinkTests", dependencies: ["MSDisplayLink"]),
     ]
 )

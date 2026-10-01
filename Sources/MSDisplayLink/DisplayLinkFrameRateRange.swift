@@ -48,4 +48,21 @@ public struct DisplayLinkFrameRateRange: Sendable, Equatable {
             preferred: Swift.max(preferred, other.preferred)
         )
     }
+
+    /// The same request reshaped into one `CAFrameRateRange` accepts:
+    /// all zero (system default), or `0 < minimum <= maximum` with a finite
+    /// `preferred` that is either 0 (no preference) or inside the range.
+    /// Core Animation raises an exception for anything else, and partial
+    /// initializers such as `.init(maximum: 60)` would otherwise keep a
+    /// preferred of 120. The maximum wins over the minimum: it is the cap the
+    /// caller asked for.
+    var normalized: DisplayLinkFrameRateRange {
+        if minimum == 0, maximum == 0, preferred == 0 { return self }
+        let maximum = maximum.isFinite && maximum > 0 ? maximum : Self.default.maximum
+        let minimum = minimum.isFinite && minimum > 0 ? Swift.min(minimum, maximum) : Swift.min(1, maximum)
+        let preferred = preferred.isFinite && preferred != 0
+            ? Swift.min(Swift.max(preferred, minimum), maximum)
+            : 0
+        return DisplayLinkFrameRateRange(minimum: minimum, maximum: maximum, preferred: preferred)
+    }
 }
