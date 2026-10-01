@@ -103,9 +103,6 @@ final class FrameRateRangeTests: DisplayLinkTestCase {
                 let link = screen.displayLink(target: target, selector: #selector(Target.tick(_:)))
             #endif
             defer { link.invalidate() }
-            guard #available(iOS 15.0, tvOS 15.0, macCatalyst 15.0, *) else {
-                throw XCTSkip("CAFrameRateRange needs iOS 15")
-            }
             for range in Self.edgeCaseRanges {
                 let normalized = range.normalized
                 link.preferredFrameRateRange = CAFrameRateRange(

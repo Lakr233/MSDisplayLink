@@ -1,14 +1,14 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.2
 
 import PackageDescription
 
 let package = Package(
     name: "DisplayLink",
     platforms: [
-        .iOS(.v13),
-        .macOS(.v11),
-        .macCatalyst(.v13),
-        .tvOS(.v13),
+        .iOS(.v15),
+        .macOS(.v12),
+        .macCatalyst(.v15),
+        .tvOS(.v15),
         .visionOS(.v1),
     ],
     products: [

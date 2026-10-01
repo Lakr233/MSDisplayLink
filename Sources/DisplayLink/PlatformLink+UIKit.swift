@@ -56,15 +56,11 @@
                 guard let link = display.displayLink(withTarget: target, selector: selector) else { return nil }
                 self.link = link
             #endif
-            // Before iOS 15 there is no range to ask for; the link runs at the
-            // display's native rate.
-            if #available(iOS 15.0, tvOS 15.0, macCatalyst 15.0, *) {
-                link.preferredFrameRateRange = CAFrameRateRange(
-                    minimum: frameRateRange.minimum,
-                    maximum: frameRateRange.maximum,
-                    preferred: frameRateRange.preferred,
-                )
-            }
+            link.preferredFrameRateRange = CAFrameRateRange(
+                minimum: frameRateRange.minimum,
+                maximum: frameRateRange.maximum,
+                preferred: frameRateRange.preferred,
+            )
             link.add(to: .main, forMode: .common)
         }
 
