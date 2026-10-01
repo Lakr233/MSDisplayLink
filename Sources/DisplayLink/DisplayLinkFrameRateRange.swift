@@ -1,6 +1,6 @@
 //
 //  DisplayLinkFrameRateRange.swift
-//  MSDisplayLink
+//  DisplayLink
 //
 //  Created by 秋星桥 on 2026/8/11.
 //
@@ -8,9 +8,9 @@
 import Foundation
 
 /// The frame rate a `DisplayLink` asks the display for, expressed in frames
-/// per second. Platform-neutral on purpose: UIKit platforms hand it to
-/// `CADisplayLink.preferredFrameRateRange` (iOS 15+), the CVDisplayLink
-/// path on macOS always runs at the display's own rate and ignores it.
+/// per second. UIKit platforms hand it to `CADisplayLink.preferredFrameRateRange`
+/// (iOS 15+). CVDisplayLink cannot be slowed, so on macOS frames are skipped
+/// down to the preferred rate.
 ///
 /// The library defaults to the full ProMotion range rather than the
 /// system's 60 fps fallback — a display link exists to animate, and an
@@ -21,7 +21,7 @@ import Foundation
 /// it to what the hardware supports, and on iPhone the app must also declare
 /// `CADisableMinimumFrameDurationOnPhone` in its Info.plist before any rate
 /// above 60 is honored.
-public struct DisplayLinkFrameRateRange: Sendable, Equatable {
+public struct DisplayLinkFrameRateRange: Sendable, Hashable {
     /// The slowest rate the caller can tolerate.
     public var minimum: Float
     /// The fastest rate worth ticking at.
@@ -37,17 +37,6 @@ public struct DisplayLinkFrameRateRange: Sendable, Equatable {
 
     /// Full ProMotion: 60 minimum, 120 preferred.
     public static let `default` = DisplayLinkFrameRateRange()
-
-    /// The union of two requests — never slower than either caller asked
-    /// for. This is what the shared display link applies when multiple
-    /// `DisplayLink` instances disagree.
-    public func union(_ other: DisplayLinkFrameRateRange) -> DisplayLinkFrameRateRange {
-        DisplayLinkFrameRateRange(
-            minimum: Swift.min(minimum, other.minimum),
-            maximum: Swift.max(maximum, other.maximum),
-            preferred: Swift.max(preferred, other.preferred)
-        )
-    }
 
     /// The same request reshaped into one `CAFrameRateRange` accepts:
     /// all zero (system default), or `0 < minimum <= maximum` with a finite

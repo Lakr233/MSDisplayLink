@@ -5,21 +5,21 @@
 //  Created by 秋星桥 on 2024/8/14.
 //
 
-import MSDisplayLink
+import DisplayLink
 import SwiftUI
 
 struct ContentView: View {
     @State var frame: Int = 0
     var body: some View {
         VStack {
-            Text("MSDisplayLink Trigger: \(frame)")
+            Text("DisplayLink Trigger: \(frame)")
                 .monospacedDigit()
                 .contentTransition(.numericText())
         }
         .animation(.interactiveSpring, value: frame)
-        .modifier(DisplayLinkModifier(scheduleToMainThread: true) {
+        .onDisplayLink { _ in
             frame += 1
-        })
+        }
         .padding()
     }
 }

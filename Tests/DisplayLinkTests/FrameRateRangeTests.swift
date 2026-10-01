@@ -1,9 +1,9 @@
 //
 //  FrameRateRangeTests.swift
-//  MSDisplayLink
+//  DisplayLink
 //
 
-@testable import MSDisplayLink
+@testable import DisplayLink
 import QuartzCore
 import XCTest
 #if canImport(UIKit)
@@ -12,6 +12,7 @@ import XCTest
     import AppKit
 #endif
 
+@MainActor
 final class FrameRateRangeTests: DisplayLinkTestCase {
     private static let edgeCaseRanges: [DisplayLinkFrameRateRange] = [
         .default,
@@ -36,17 +37,6 @@ final class FrameRateRangeTests: DisplayLinkTestCase {
             DisplayLinkFrameRateRange.default,
             DisplayLinkFrameRateRange(minimum: 60, maximum: 120, preferred: 120)
         )
-    }
-
-    func testUnionNeverSlowsAnyCaller() {
-        let low = DisplayLinkFrameRateRange(minimum: 30, maximum: 60, preferred: 60)
-        let high = DisplayLinkFrameRateRange(minimum: 80, maximum: 120, preferred: 120)
-        XCTAssertEqual(
-            low.union(high),
-            DisplayLinkFrameRateRange(minimum: 30, maximum: 120, preferred: 120)
-        )
-        XCTAssertEqual(low.union(high), high.union(low))
-        XCTAssertEqual(low.union(low), low)
     }
 
     func testNormalizedHonorsTheRequest() {
@@ -125,53 +115,63 @@ final class FrameRateRangeTests: DisplayLinkTestCase {
         }
     #endif
 
-    /// Every edge case goes through a live `DisplayLink` and the shared
-    /// link keeps ticking.
+    /// Every edge case goes through a live link, which keeps ticking.
     func testLiveLinkTicksWithEveryEdgeCaseRange() {
-        let recorder = TickRecorder()
+        let recorder = FrameRecorder()
         let link = DisplayLink()
-        link.delegatingObject(recorder)
+        link.delegate = recorder
         for range in Self.edgeCaseRanges {
             link.preferredFrameRateRange = range
-            waitForTicks(on: recorder)
+            waitForFrames(on: recorder)
         }
-        withExtendedLifetime(link) {}
     }
 
-    func testSharedRangeIsDefaultWithoutDrivers() {
-        XCTAssertEqual(helper.resolvedFrameRateRange(), .default)
+    func testSameRateOnOneDisplaySharesASystemLink() {
+        // Equal once normalized: both ask for exactly 60.
+        let a = DisplayLink(preferredFrameRateRange: .init(maximum: 60))
+        let b = DisplayLink(preferredFrameRateRange: .init(minimum: 60, maximum: 60, preferred: 60))
+        XCTAssertTrue(a.subscription === b.subscription)
+        XCTAssertEqual(SharedDisplayLink.links.count, 1)
     }
 
-    /// Requests are normalized before they are combined, so one caller's
-    /// out-of-range preferred cannot lift the shared rate.
-    func testSharedRangeNormalizesEachRequestFirst() {
-        let a = DisplayLink(preferredFrameRateRange: .init(minimum: 10, maximum: 30))
-        let b = DisplayLink(preferredFrameRateRange: .init(minimum: 10, maximum: 60, preferred: 30))
-        XCTAssertEqual(
-            helper.resolvedFrameRateRange(),
-            DisplayLinkFrameRateRange(minimum: 10, maximum: 60, preferred: 30)
-        )
-        withExtendedLifetime((a, b)) {}
+    func testDifferentRatesGetTheirOwnSystemLinks() {
+        let fast = DisplayLink()
+        let slow = DisplayLink(preferredFrameRateRange: .init(minimum: 30, maximum: 30, preferred: 30))
+        XCTAssertFalse(fast.subscription === slow.subscription)
+        XCTAssertEqual(SharedDisplayLink.links.count, 2)
+        XCTAssertEqual(slow.subscription?.key.frameRateRange, .init(minimum: 30, maximum: 30, preferred: 30))
     }
 
-    func testSharedRangeFollowsChangesAndReleases() {
-        let low = DisplayLinkFrameRateRange(minimum: 30, maximum: 60, preferred: 60)
-        let high = DisplayLinkFrameRateRange(minimum: 80, maximum: 120, preferred: 120)
+    func testChangingTheRateMovesOnlyThatLink() {
+        let a = DisplayLink()
+        let b = DisplayLink()
+        let shared = a.subscription
 
-        let a = DisplayLink(preferredFrameRateRange: low)
-        XCTAssertEqual(a.preferredFrameRateRange, low)
-        XCTAssertEqual(helper.resolvedFrameRateRange(), low)
+        b.preferredFrameRateRange = .init(minimum: 30, maximum: 30, preferred: 30)
+        XCTAssertTrue(a.subscription === shared)
+        XCTAssertFalse(b.subscription === shared)
+        XCTAssertEqual(shared?.subscriberCount, 1)
 
-        var b: DisplayLink? = DisplayLink(preferredFrameRateRange: low)
-        b?.preferredFrameRateRange = high
-        XCTAssertEqual(b?.preferredFrameRateRange, high)
-        XCTAssertEqual(helper.resolvedFrameRateRange(), low.union(high))
+        b.preferredFrameRateRange = .default
+        XCTAssertTrue(b.subscription === shared)
+        XCTAssertEqual(SharedDisplayLink.links.count, 1, "the emptied 30 fps link is released")
+    }
 
-        b = nil
-        XCTAssertEqual(helper.resolvedFrameRateRange(), low, "a released link still votes")
+    /// A link asking for 30 gets 30, with each frame lasting a 30th of a
+    /// second, whatever rate other links keep the display at.
+    func testSlowLinkReceivesItsOwnRate() {
+        let fastRecorder = FrameRecorder()
+        let slowRecorder = FrameRecorder()
+        let fast = DisplayLink()
+        let slow = DisplayLink(preferredFrameRateRange: .init(minimum: 30, maximum: 30, preferred: 30))
+        fast.delegate = fastRecorder
+        slow.delegate = slowRecorder
+        waitForFrames(12, on: slowRecorder)
 
-        a.preferredFrameRateRange = .default
-        XCTAssertEqual(helper.resolvedFrameRateRange(), .default)
-        withExtendedLifetime(a) {}
+        let intervals = zip(slowRecorder.frames, slowRecorder.frames.dropFirst()).map { $1.timestamp - $0.timestamp }
+        let median = intervals.sorted()[intervals.count / 2]
+        XCTAssertEqual(median, 1.0 / 30, accuracy: 0.004)
+        XCTAssertEqual(slowRecorder.frames.last!.duration, 1.0 / 30, accuracy: 0.004)
+        XCTAssertGreaterThan(fastRecorder.count, slowRecorder.count, "the fast link must not be slowed")
     }
 }
