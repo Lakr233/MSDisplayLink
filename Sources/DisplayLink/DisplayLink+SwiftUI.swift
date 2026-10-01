@@ -13,7 +13,7 @@ public extension View {
     func onDisplayLink(
         preferredFrameRateRange: DisplayLinkFrameRateRange = .default,
         isPaused: Bool = false,
-        perform action: @escaping @MainActor (DisplayLinkFrame) -> Void
+        perform action: @escaping @MainActor (DisplayLinkFrame) -> Void,
     ) -> some View {
         background(DisplayLinkHost(preferredFrameRateRange: preferredFrameRateRange, isPaused: isPaused, action: action))
     }

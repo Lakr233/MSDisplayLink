@@ -50,7 +50,7 @@ final class DisplayLinkStressTests: DisplayLinkTestCase {
         withExtendedLifetime(links) {}
     }
 
-    func testChurnLeavesNothingBehind() throws {
+    func testChurnLeavesNothingBehind() {
         let window = try? makeWindow()
         defer { window?.close() }
         let view = PlatformView()
@@ -119,7 +119,9 @@ final class DisplayLinkStressTests: DisplayLinkTestCase {
             let frames = link!.frames
             return Task { @MainActor in
                 var count = 0
-                for await _ in frames { count += 1 }
+                for await _ in frames {
+                    count += 1
+                }
                 return count
             }
         }

@@ -19,7 +19,9 @@ public struct DisplayLinkFrame: Sendable, Equatable {
 
     /// The time this frame stays on screen. Varies with the refresh rate the
     /// display settles on, so animate by elapsed time rather than frame count.
-    public var duration: TimeInterval { targetTimestamp - timestamp }
+    public var duration: TimeInterval {
+        targetTimestamp - timestamp
+    }
 
     public init(timestamp: TimeInterval, targetTimestamp: TimeInterval) {
         self.timestamp = timestamp

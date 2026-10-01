@@ -17,5 +17,5 @@ let package = Package(
     targets: [
         .target(name: "DisplayLink"),
         .testTarget(name: "DisplayLinkTests", dependencies: ["DisplayLink"]),
-    ]
+    ],
 )

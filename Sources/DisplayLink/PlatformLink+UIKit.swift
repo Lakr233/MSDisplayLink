@@ -13,7 +13,9 @@
         struct Display: Hashable {
             static let primary = Display()
 
-            var isConnected: Bool { true }
+            var isConnected: Bool {
+                true
+            }
 
             @MainActor
             static func showing(_ view: UIView) -> Display? {
@@ -24,9 +26,13 @@
         typealias Display = UIScreen
 
         extension UIScreen {
-            static var primary: UIScreen { .main }
+            static var primary: UIScreen {
+                .main
+            }
 
-            var isConnected: Bool { UIScreen.screens.contains(self) }
+            var isConnected: Bool {
+                UIScreen.screens.contains(self)
+            }
 
             static func showing(_ view: UIView) -> UIScreen? {
                 (view as? UIWindow ?? view.window)?.screen
@@ -56,7 +62,7 @@
                 link.preferredFrameRateRange = CAFrameRateRange(
                     minimum: frameRateRange.minimum,
                     maximum: frameRateRange.maximum,
-                    preferred: frameRateRange.preferred
+                    preferred: frameRateRange.preferred,
                 )
             }
             link.add(to: .main, forMode: .common)

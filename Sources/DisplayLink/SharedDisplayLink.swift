@@ -24,7 +24,9 @@ final class SharedDisplayLink {
 
     static func link(for key: Key) -> SharedDisplayLink {
         _ = systemEventsObserved
-        if let link = links[key] { return link }
+        if let link = links[key] {
+            return link
+        }
         let link = SharedDisplayLink(key: key)
         links[key] = link
         return link
@@ -53,8 +55,13 @@ final class SharedDisplayLink {
         self.key = key
     }
 
-    var isRunning: Bool { platformLink != nil }
-    var subscriberCount: Int { subscribers.count }
+    var isRunning: Bool {
+        platformLink != nil
+    }
+
+    var subscriberCount: Int {
+        subscribers.count
+    }
 
     func add(_ link: DisplayLink) {
         let index = subscribers.firstIndex { $0.order > link.order } ?? subscribers.endIndex
@@ -66,7 +73,9 @@ final class SharedDisplayLink {
     /// deinit, where weak references to it already read nil.
     func remove(_ id: ObjectIdentifier) {
         subscribers.removeAll { $0.id == id }
-        if subscribers.isEmpty { Self.links[key] = nil }
+        if subscribers.isEmpty {
+            Self.links[key] = nil
+        }
         updatePlatformLink()
     }
 

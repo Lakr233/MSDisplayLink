@@ -60,7 +60,7 @@ final class DisplayLinkLifecycleTests: DisplayLinkTestCase {
 
     /// Links on one system link are called in creation order, which pausing,
     /// resuming and rebinding do not change.
-    func testCallsFollowCreationOrder() throws {
+    func testCallsFollowCreationOrder() {
         var calls: [Int] = []
         let recorders = (0 ..< 5).map { _ in FrameRecorder() }
         let links = recorders.map { recorder in
@@ -136,18 +136,22 @@ final class DisplayLinkLifecycleTests: DisplayLinkTestCase {
         var received: [DisplayLinkFrame] = []
         for await frame in link.frames {
             received.append(frame)
-            if received.count == 5 { break }
+            if received.count == 5 {
+                break
+            }
         }
         XCTAssertEqual(received.count, 5)
         XCTAssertTrue(zip(received, received.dropFirst()).allSatisfy { $0.timestamp < $1.timestamp })
     }
 
-    func testFramesStreamFinishesWhenTheLinkIsReleased() async {
+    func testFramesStreamFinishesWhenTheLinkIsReleased() async throws {
         var link: DisplayLink? = DisplayLink()
-        let frames = link!.frames
+        let frames = try XCTUnwrap(link?.frames)
         let consumer = Task { @MainActor in
             var count = 0
-            for await _ in frames { count += 1 }
+            for await _ in frames {
+                count += 1
+            }
             return count
         }
         try? await Task.sleep(nanoseconds: 100_000_000)
