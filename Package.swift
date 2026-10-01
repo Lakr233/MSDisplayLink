@@ -3,7 +3,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "MSDisplayLink",
+    name: "DisplayLink",
     platforms: [
         .iOS(.v13),
         .macOS(.v11),
@@ -12,10 +12,10 @@ let package = Package(
         .visionOS(.v1),
     ],
     products: [
-        .library(name: "MSDisplayLink", targets: ["MSDisplayLink"]),
+        .library(name: "DisplayLink", targets: ["DisplayLink"]),
     ],
     targets: [
-        .target(name: "MSDisplayLink"),
-        .testTarget(name: "MSDisplayLinkTests", dependencies: ["MSDisplayLink"]),
+        .target(name: "DisplayLink"),
+        .testTarget(name: "DisplayLinkTests", dependencies: ["DisplayLink"]),
     ]
 )

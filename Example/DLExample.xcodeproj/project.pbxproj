@@ -10,7 +10,7 @@
 		506240E32C6CBFFA00605212 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 506240E22C6CBFFA00605212 /* App.swift */; };
 		506240E52C6CBFFA00605212 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 506240E42C6CBFFA00605212 /* ContentView.swift */; };
 		506240E72C6CBFFB00605212 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 506240E62C6CBFFB00605212 /* Assets.xcassets */; };
-		506240F32C6CC02C00605212 /* MSDisplayLink in Frameworks */ = {isa = PBXBuildFile; productRef = 506240F22C6CC02C00605212 /* MSDisplayLink */; };
+		506240F32C6CC02C00605212 /* DisplayLink in Frameworks */ = {isa = PBXBuildFile; productRef = 506240F22C6CC02C00605212 /* DisplayLink */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,7 +26,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				506240F32C6CC02C00605212 /* MSDisplayLink in Frameworks */,
+				506240F32C6CC02C00605212 /* DisplayLink in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -85,7 +85,7 @@
 			);
 			name = DLExample;
 			packageProductDependencies = (
-				506240F22C6CC02C00605212 /* MSDisplayLink */,
+				506240F22C6CC02C00605212 /* DisplayLink */,
 			);
 			productName = DLExample;
 			productReference = 506240DF2C6CBFFA00605212 /* DLExample.app */;
@@ -368,9 +368,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		506240F22C6CC02C00605212 /* MSDisplayLink */ = {
+		506240F22C6CC02C00605212 /* DisplayLink */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = MSDisplayLink;
+			productName = DisplayLink;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
