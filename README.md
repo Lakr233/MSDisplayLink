@@ -18,7 +18,7 @@ Formerly MSDisplayLink. 2.x stays available at the old URL; see [Migrating from 
 .package(url: "https://github.com/Lakr233/DisplayLink.git", from: "3.0.0")
 ```
 
-Supports iOS 13, macOS 11, Mac Catalyst 13, tvOS 13 and visionOS 1.
+Supports iOS 15, macOS 12, Mac Catalyst 15, tvOS 15 and visionOS 1, the oldest systems current toolchains deploy to. Requires Swift 6.2 (Xcode 26) or later.
 
 ## Usage
 
@@ -111,6 +111,7 @@ Bind a cell's link to the cell (or its content view). A reused cell waiting off 
 | `.modifier(DisplayLinkModifier { ... })` | `.onDisplayLink { frame in ... }` |
 | `scheduleToMainThread: false` | Removed; hop to another queue from the callback if needed |
 | Ranges combined into one shared rate | One system link per display and rate |
+| iOS 13, macOS 11, Mac Catalyst 13, tvOS 13; Swift 6.0 | iOS 15, macOS 12, Mac Catalyst 15, tvOS 15; Swift 6.2 |
 
 The old URL redirects here, and 2.x releases remain installable from it. Depend on the new URL for 3.x: a graph that reaches 3.x through both URLs would declare the `DisplayLink` module twice.
 
